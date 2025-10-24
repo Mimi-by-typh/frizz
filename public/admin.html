@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель - Luka Frizz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #8B5FBF;
+            --secondary: #6A3093;
+            --accent: #C77DFF;
+            --dark: #1A0B2E;
+            --darker: #0F051F;
+            --light: #FFFFFF;
+            --gray: #A78BFA;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--darker);
+            color: var(--light);
+            line-height: 1.6;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: var(--dark);
+            border-right: 1px solid rgba(139, 95, 191, 0.3);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(139, 95, 191, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 12px 20px;
+            color: var(--light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(139, 95, 191, 0.1);
+            border-left-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--dark);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(139, 95, 191, 0.2);
+        }
+
+        .header h1 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--dark);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(139, 95, 191, 0.2);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: var(--accent);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            color: var(--gray);
+        }
+
+        .content-section {
+            background: var(--dark);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(139, 95, 191, 0.2);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(139, 95, 191, 0.2);
+        }
+
+        .section-header h2 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--accent);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            color: var(--light);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 95, 191, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(90deg, var(--success), #059669);
+        }
+
+        .btn-warning {
+            background: linear-gradient(90deg, var(--warning), #D97706);
+        }
+
+        .btn-danger {
+            background: linear-gradient(90deg, var(--danger), #DC2626);
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(139, 95, 191, 0.2);
+        }
+
+        .table th {
+            background: rgba(139, 95, 191, 0.1);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .table tr:hover {
+            background: rgba(139, 95, 191, 0.05);
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .status-approved {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .status-published {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .status-draft {
+            background: rgba(107, 114, 128, 0.2);
+            color: #9CA3AF;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 95, 191, 0.3);
+            border-radius: 5px;
+            color: var(--light);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--darker);
+        }
+
+        .login-form {
+            background: var(--dark);
+            padding: 40px;
+            border-radius: 10px;
+            border: 1px solid rgba(139, 95, 191, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-form h2 {
+            text-align: center;
+            color: var(--accent);
+            margin-bottom: 30px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Форма входа -->
+    <div id="loginForm" class="login-container">
+        <div class="login-form">
+            <h2><i class="fas fa-shield-alt"></i> Админ-панель</h2>
+            <div id="loginAlert" class="hidden"></div>
+            <form id="loginFormElement">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Войти</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Основной интерфейс -->
+    <div id="adminInterface" class="admin-container hidden">
+        <!-- Боковая панель -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-crown"></i> Админ-панель</h2>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="#" data-section="dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Дашборд</a></li>
+                <li><a href="#" data-section="comments"><i class="fas fa-comments"></i> Комментарии</a></li>
+                <li><a href="#" data-section="news"><i class="fas fa-newspaper"></i> Новости</a></li>
+                <li><a href="#" data-section="products"><i class="fas fa-shopping-bag"></i> Товары</a></li>
+                <li><a href="#" data-section="users"><i class="fas fa-users"></i> Пользователи</a></li>
+                <li><a href="#" data-section="files"><i class="fas fa-folder"></i> Файлы</a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Выйти</a></li>
+            </ul>
+        </nav>
+
+        <!-- Основной контент -->
+        <main class="main-content">
+            <!-- Дашборд -->
+            <div id="dashboard" class="content-section">
+                <div class="header">
+                    <h1><i class="fas fa-tachometer-alt"></i> Дашборд</h1>
+                    <p>Обзор статистики и управления сайтом</p>
+                </div>
+
+                <div class="stats-grid" id="statsGrid">
+                    <!-- Статистика будет загружена динамически -->
+                </div>
+
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2>Быстрые действия</h2>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn" onclick="showSection('comments')">
+                            <i class="fas fa-comments"></i> Модерация комментариев
+                        </button>
+                        <button class="btn" onclick="showSection('news')">
+                            <i class="fas fa-plus"></i> Добавить новость
+                        </button>
+                        <button class="btn" onclick="showSection('products')">
+                            <i class="fas fa-plus"></i> Добавить товар
+                        </button>
+                        <button class="btn" onclick="showSection('files')">
+                            <i class="fas fa-upload"></i> Загрузить файлы
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Комментарии -->
+            <div id="comments" class="content-section hidden">
+                <div class="section-header">
+                    <h2><i class="fas fa-comments"></i> Управление комментариями</h2>
+                    <div>
+                        <button class="btn btn-sm" onclick="loadComments('pending')">Ожидающие</button>
+                        <button class="btn btn-sm" onclick="loadComments('approved')">Одобренные</button>
+                        <button class="btn btn-sm" onclick="loadComments('all')">Все</button>
+                    </div>
+                </div>
+                <div id="commentsList">
+                    <!-- Комментарии будут загружены динамически -->
+                </div>
+            </div>
+
+            <!-- Новости -->
+            <div id="news" class="content-section hidden">
+                <div class="section-header">
+                    <h2><i class="fas fa-newspaper"></i> Управление новостями</h2>
+                    <button class="btn" onclick="showNewsForm()">
+                        <i class="fas fa-plus"></i> Добавить новость
+                    </button>
+                </div>
+                <div id="newsList">
+                    <!-- Новости будут загружены динамически -->
+                </div>
+            </div>
+
+            <!-- Товары -->
+            <div id="products" class="content-section hidden">
+                <div class="section-header">
+                    <h2><i class="fas fa-shopping-bag"></i> Управление товарами</h2>
+                    <button class="btn" onclick="showProductForm()">
+                        <i class="fas fa-plus"></i> Добавить товар
+                    </button>
+                </div>
+                <div id="productsList">
+                    <!-- Товары будут загружены динамически -->
+                </div>
+            </div>
+
+            <!-- Пользователи -->
+            <div id="users" class="content-section hidden">
+                <div class="section-header">
+                    <h2><i class="fas fa-users"></i> Управление пользователями</h2>
+                </div>
+                <div id="usersList">
+                    <!-- Пользователи будут загружены динамически -->
+                </div>
+            </div>
+
+            <!-- Файлы -->
+            <div id="files" class="content-section hidden">
+                <div class="section-header">
+                    <h2><i class="fas fa-folder"></i> Управление файлами</h2>
+                    <div>
+                        <button class="btn btn-sm" onclick="loadFiles('images')">Изображения</button>
+                        <button class="btn btn-sm" onclick="loadFiles('audio')">Аудио</button>
+                        <button class="btn btn-sm" onclick="loadFiles('video')">Видео</button>
+                    </div>
+                </div>
+                <div id="filesList">
+                    <!-- Файлы будут загружены динамически -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let authToken = null;
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            // Проверяем, есть ли сохраненный токен
+            const savedToken = localStorage.getItem('adminToken');
+            if (savedToken) {
+                authToken = savedToken;
+                verifyToken();
+            }
+
+            // Обработка формы входа
+            document.getElementById('loginFormElement').addEventListener('submit', handleLogin);
+        });
+
+        // Обработка входа
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    authToken = data.data.token;
+                    currentUser = data.data.user;
+                    localStorage.setItem('adminToken', authToken);
+                    
+                    if (currentUser.role === 'admin') {
+                        showAdminInterface();
+                        loadDashboard();
+                    } else {
+                        showAlert('У вас нет прав администратора', 'error');
+                    }
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Ошибка входа:', error);
+                showAlert('Ошибка подключения к серверу', 'error');
+            }
+        }
+
+        // Проверка токена
+        async function verifyToken() {
+            try {
+                const response = await fetch('/api/auth/verify', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.data.role === 'admin') {
+                    showAdminInterface();
+                    loadDashboard();
+                } else {
+                    logout();
+                }
+            } catch (error) {
+                logout();
+            }
+        }
+
+        // Показать админский интерфейс
+        function showAdminInterface() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('adminInterface').classList.remove('hidden');
+        }
+
+        // Выход
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('adminToken');
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('adminInterface').classList.add('hidden');
+        }
+
+        // Показать уведомление
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('loginAlert');
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                alertDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Переключение секций
+        function showSection(sectionName) {
+            // Скрыть все секции
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Показать выбранную секцию
+            document.getElementById(sectionName).classList.remove('hidden');
+
+            // Обновить активную ссылку в навигации
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+
+            // Загрузить данные для секции
+            switch(sectionName) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'comments':
+                    loadComments('pending');
+                    break;
+                case 'news':
+                    loadNews();
+                    break;
+                case 'products':
+                    loadProducts();
+                    break;
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'files':
+                    loadFiles('images');
+                    break;
+            }
+        }
+
+        // Загрузка дашборда
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/admin/stats', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const stats = data.data.overview;
+                    const recent = data.data.recent;
+
+                    document.getElementById('statsGrid').innerHTML = `
+                        <div class="stat-card">
+                            <h3>${stats.totalUsers}</h3>
+                            <p>Пользователей</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.totalComments}</h3>
+                            <p>Комментариев</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.pendingComments}</h3>
+                            <p>Ожидают модерации</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.publishedNews}</h3>
+                            <p>Опубликованных новостей</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.availableProducts}</h3>
+                            <p>Доступных товаров</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${recent.newUsers}</h3>
+                            <p>Новых за 30 дней</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки дашборда:', error);
+            }
+        }
+
+        // Загрузка комментариев
+        async function loadComments(status = 'pending') {
+            try {
+                const response = await fetch(`/api/admin/comments?status=${status}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const comments = data.data.comments;
+                    let html = '';
+
+                    if (comments.length === 0) {
+                        html = '<p>Комментарии не найдены</p>';
+                    } else {
+                        html = `
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Автор</th>
+                                        <th>Комментарий</th>
+                                        <th>Дата</th>
+                                        <th>Статус</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+
+                        comments.forEach(comment => {
+                            const statusClass = comment.isApproved ? 'status-approved' : 'status-pending';
+                            const statusText = comment.isApproved ? 'Одобрен' : 'Ожидает';
+                            
+                            html += `
+                                <tr>
+                                    <td>${comment.name}</td>
+                                    <td>${comment.text.substring(0, 100)}${comment.text.length > 100 ? '...' : ''}</td>
+                                    <td>${new Date(comment.createdAt).toLocaleDateString('ru-RU')}</td>
+                                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                                    <td>
+                                        ${!comment.isApproved ? 
+                                            `<button class="btn btn-success btn-sm" onclick="approveComment('${comment._id}', true)">Одобрить</button>` : 
+                                            `<button class="btn btn-warning btn-sm" onclick="approveComment('${comment._id}', false)">Отклонить</button>`
+                                        }
+                                        <button class="btn btn-danger btn-sm" onclick="deleteComment('${comment._id}')">Удалить</button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+
+                        html += '</tbody></table>';
+                    }
+
+                    document.getElementById('commentsList').innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки комментариев:', error);
+            }
+        }
+
+        // Одобрить/отклонить комментарий
+        async function approveComment(commentId, isApproved) {
+            try {
+                const response = await fetch(`/api/admin/comments/${commentId}/approve`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ isApproved })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    loadComments('pending');
+                    showAlert(data.message, 'success');
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Ошибка обновления комментария:', error);
+                showAlert('Ошибка обновления комментария', 'error');
+            }
+        }
+
+        // Удалить комментарий
+        async function deleteComment(commentId) {
+            if (!confirm('Вы уверены, что хотите удалить этот комментарий?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/comments/${commentId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    loadComments('pending');
+                    showAlert('Комментарий удален', 'success');
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Ошибка удаления комментария:', error);
+                showAlert('Ошибка удаления комментария', 'error');
+            }
+        }
+
+        // Обработчики навигации
+        document.querySelectorAll('.sidebar-nav a[data-section]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = this.getAttribute('data-section');
+                showSection(section);
+            });
+        });
+
+        // Заглушки для остальных функций
+        function loadNews() {
+            document.getElementById('newsList').innerHTML = '<p>Функция в разработке</p>';
+        }
+
+        function loadProducts() {
+            document.getElementById('productsList').innerHTML = '<p>Функция в разработке</p>';
+        }
+
+        function loadUsers() {
+            document.getElementById('usersList').innerHTML = '<p>Функция в разработке</p>';
+        }
+
+        function loadFiles(type) {
+            document.getElementById('filesList').innerHTML = '<p>Функция в разработке</p>';
+        }
+
+        function showNewsForm() {
+            alert('Форма добавления новости в разработке');
+        }
+
+        function showProductForm() {
+            alert('Форма добавления товара в разработке');
+        }
+    </script>
+</body>
+</html>
